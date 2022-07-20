@@ -21,6 +21,7 @@ void processInput(GLFWwindow *window);
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
+//http://www.songho.ca/opengl/gl_sphere.html
 std::pair<std::vector<float>, std::vector<unsigned int>> build_sphere_vertex(float r)
 {
     std::vector<float> vertices;
