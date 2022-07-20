@@ -103,6 +103,9 @@ Shader::Shader(const char* vertex_path, const char* shader_path)
 }
 
 
+Shader::~Shader() { }
+
+
 void Shader::check_compile_errors(GLuint shader, std::string type)
 {
     GLint success;
