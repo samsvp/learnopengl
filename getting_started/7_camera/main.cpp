@@ -1,7 +1,7 @@
-#include "../include/shader.hpp"
-#include "../include/camera.hpp"
-#include "../include/resources.hpp"
-#include "../include/glad/glad.h"
+#include "../../include/shader.hpp"
+#include "../../include/camera.hpp"
+#include "../../include/resources.hpp"
+#include "../../include/glad/glad.h"
 
 
 #include <GLFW/glfw3.h>
@@ -82,7 +82,7 @@ int main()
 
     // build and compile our shader zprogram
     // ------------------------------------
-    Shader ourShader("../shaders/6.3.coordinate_systems.vs", "../shaders/6.3.coordinate_systems.fs");
+    Shader ourShader("../../shaders/6.3.coordinate_systems.vs", "../../shaders/6.3.coordinate_systems.fs");
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
@@ -161,8 +161,8 @@ int main()
 
     // load and create a texture 
     // -------------------------
-    unsigned int texture1 = resources::load_texture("../resources/images/container.jpg");
-    unsigned int texture2 = resources::load_texture("../resources/images/awesomeface.png");
+    unsigned int texture1 = resources::load_texture("../../resources/images/container.jpg");
+    unsigned int texture2 = resources::load_texture("../../resources/images/awesomeface.png");
 
     // tell opengl for each sampler to which texture unit it belongs to (only has to be done once)
     // -------------------------------------------------------------------------------------------
