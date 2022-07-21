@@ -103,7 +103,7 @@ int main()
     unsigned int instanceVBO;
     glGenBuffers(1, &instanceVBO);
     glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * 100, &translations[0], GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * 100, &translations[0], GL_STREAM_DRAW);
 
     // positions attributes
     glEnableVertexAttribArray(2);
@@ -143,6 +143,29 @@ int main()
 
         // activate shader
         ourShader.use();
+
+        index=0;
+        float offset_x = glm::sin(glfwGetTime());
+        float offset_y = glm::cos(glfwGetTime());
+        for (int y = -10; y < 10; y+=2)
+        {
+            for (int x = -10; x < 10; x+=2)
+            {
+                glm::vec2 translation(x / 10.0 + offset_x, y / 10.0 + offset_y);
+                translations[index++] = translation;
+            }
+        }
+        // store instance data in an array buffer
+        // --------------------------------------
+        unsigned int instanceVBO;
+        glGenBuffers(1, &instanceVBO);
+        glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * 100, &translations[0], GL_STREAM_DRAW);
+
+        // positions attributes
+        glEnableVertexAttribArray(2);
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
 
         // render boxes
         glBindVertexArray(quadVAO);
