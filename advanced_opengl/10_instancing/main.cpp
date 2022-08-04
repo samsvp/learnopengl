@@ -121,12 +121,6 @@ int main()
     */
     glVertexAttribDivisor(2, 1);
 
-
-    ourShader.use();
-    for (unsigned int i = 0; i < 100; i++)
-    {
-        ourShader.set_vec2("offsets[" + std::to_string(i) + "]", translations[i]);
-    }
     
     // render loop
     // -----------
@@ -170,6 +164,9 @@ int main()
         // render boxes
         glBindVertexArray(quadVAO);
         glDrawArraysInstanced(GL_TRIANGLES, 0, 6, 100); 
+
+        // delete buffer to prevent a memory leaks
+        glDeleteBuffers(1, &instanceVBO);
        
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
