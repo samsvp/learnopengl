@@ -11,8 +11,9 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-
+#include <random>
 #include <iostream>
+
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
@@ -20,6 +21,17 @@ void processInput(GLFWwindow *window);
 // settings
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 800;
+
+
+struct randomf
+{
+    std::random_device dev;
+    std::mt19937 rng;
+    std::uniform_real_distribution<float> dist;
+
+    randomf() : rng(dev()), dist(0.0, 1.0) { }
+    float gen() { return dist(rng); }
+} randf;
 
 
 int main()
@@ -68,19 +80,17 @@ int main()
     ComputeShader particleComputeShader("shaders/particle.comp");
     Shader particleShader("shaders/particle.vert", "shaders/particle.frag");
 
-
-
     particleShader.use();
     glm::mat4 model = glm::mat4(1.0f);
     particleShader.set_mat4("model", model);
 
-    int numberOfParticles = 1024;
+    int numberOfParticles = 2048;
     float particles[numberOfParticles* 2];
-    glPointSize(2.0f);
+    glPointSize(4.0f);
 
-    for(int i = 0; i < numberOfParticles * 2; i++){
-        // TODO: Use propeor good randomness instead...
-        particles[i] = static_cast <float> ( 2 * rand()) / static_cast <float> (RAND_MAX);
+    for(int i = 0; i < numberOfParticles; i++) {
+        particles[i * 2] = (randf.gen() - 0.5f) * 1.0f;
+        particles[i * 2 + 1] = -1.0f;
     }
     unsigned int PARTICLE_VAO, PARTICLE_VBO;
     glGenVertexArrays(1, &PARTICLE_VAO);
@@ -97,26 +107,45 @@ int main()
 
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, PARTICLE_VBO);
 
+    particleComputeShader.use();
+    for (size_t i = 0; i < numberOfParticles; i++)
+    {
+        particleComputeShader.set_vec2("initialPos["+ std::to_string(i) + "]", 
+            particles[2 * i], particles[2 * i + 1]);
+    }
 
-
+    // timing 
+    float deltaTime = 0.0f; // time between current frame and last frame
+    float lastFrame = 0.0f; // time of last frame
+    int fCounter = 0;
 
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window))
     {
-
-
+        // timing
+        // Set frame time
+        float currentFrame = glfwGetTime();
+        deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
+        if(fCounter > 500) {
+                std::cout << "FPS: " << 1 / deltaTime << std::endl;
+                fCounter = 0;
+        } else {
+            fCounter++;
+        }	
         // input
         // -----
         processInput(window);
 
         // render
         // ------
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 
         // activate shader
         particleComputeShader.use();
+        particleComputeShader.set_float("t", 0.005 * glm::sin(0.005f * currentFrame));
         glBindVertexArray(PARTICLE_VAO);
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, PARTICLE_VBO);
         glDispatchCompute(numberOfParticles / 1024, 1, 1);
@@ -124,10 +153,8 @@ int main()
         glMemoryBarrier(GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT);
 
         particleShader.use();
-        particleShader.set_vec4("u_color", 1.0f, 1.0f, 1.0f, 1.0f);
+        particleShader.set_vec4("u_color", 0.0f, 0.5f, 1.0f, 1.0f);
         glDrawArrays(GL_POINTS, 0, numberOfParticles);
-
-
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
